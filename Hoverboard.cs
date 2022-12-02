@@ -4,13 +4,14 @@ using UnityEngine;
 
 public class Hoverboard : MonoBehaviour
 {
+    private Rigidbody rb;
+    private RaycastHit[] hits = new RaycastHit[4];
+    private float moveInput;
+    private float rotateInput;
 
-    Rigidbody rb;
-    public float moveForce, turnForce, multiplier;
-
-    public Transform[] anchors = new Transform[4];
-    RaycastHit[] hits = new RaycastHit[4];
-    public LayerMask canFloatOn;
+    [SerializeField] private float moveForce, turnForce, multiplier;
+    [SerializeField] private Transform[] anchors = new Transform[4];
+    [SerializeField] private LayerMask canFloatOn;
 
     // Start is called before the first frame update
     void Start()
@@ -21,14 +22,15 @@ public class Hoverboard : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        moveInput = Input.GetAxis("Vertical");
+        rotateInput = Input.GetAxis("Horizontal");
     }
 
     void FixedUpdate()
     {
         for (int i = 0; i < 4; i++)
         {       
-            // Anchords send raycast down
+            //Anchors send raycast down
             if (Physics.Raycast(anchors[i].position, Vector3.down, out hits[i], Mathf.Infinity, canFloatOn))
             {
                 // Anchor pushes upwards the closer the ray is to the ground
@@ -37,8 +39,10 @@ public class Hoverboard : MonoBehaviour
             }
         }
 
-        // Basic movement controls
-        rb.AddForce(Input.GetAxis("Vertical") * moveForce * transform.forward, ForceMode.Acceleration);
-        rb.AddTorque(Input.GetAxis("Horizontal") * turnForce * transform.up, ForceMode.Acceleration);
+        //Movement through force
+        rb.AddForce(moveInput * moveForce * transform.forward, ForceMode.Acceleration);
+
+        //Rotation through torque
+        rb.AddTorque(rotateInput * turnForce * transform.up, ForceMode.Acceleration);
     }
 }
